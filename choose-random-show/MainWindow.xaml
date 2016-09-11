@@ -3,10 +3,102 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:choose_random_show"
+        xmlns:chooseRandomShow="clr-namespace:choose_random_show"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        ResizeMode="NoResize"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}"
+        Title="Random folder chooser" Height="380" Width="640">
+    <Window.Resources>
+        <chooseRandomShow:StringLengthConverter x:Key="Converter" />
+        <chooseRandomShow:BoolPathValid x:Key="BoolPathConverter" />
+        <chooseRandomShow:OpacityPathValid x:Key="OpacityPathConverter" />
+        <Style x:Key="ListBoxItemStyle" TargetType="{x:Type ListBoxItem}">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+            <Setter Property="Padding" Value="2,0,0,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                        
+                        <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" 
+                            Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+                            <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                        </Border>
+                        
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsSelected" Value="true">
+                                <Setter Property="Background" TargetName="Bd" Value="Transparent"/>
+                                <Setter Property="Foreground" Value="Black"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                        
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
     <Grid>
-        
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="2*"/>
+                <RowDefinition Height="12*"/>
+                <RowDefinition Height="2*"/>
+            </Grid.RowDefinitions>
+            
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="4*"/>
+                    <ColumnDefinition Width="10*"/>
+                </Grid.ColumnDefinitions>
+
+                <Label FontFamily="Segoe UI Light" FontSize="24" Grid.Column="0" VerticalAlignment="Center" Content="Choose a folder: "/>
+                
+                <DockPanel Grid.Column="1" LastChildFill="True" >
+                    <Button Content="..." DockPanel.Dock="Right" Width="35" Height="35" Click="SelectFolder_Click" BorderThickness="0" />
+                    <TextBox DockPanel.Dock="Left" Height="35" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" IsHitTestVisible="False"
+                             FontSize="24" Text="{Binding Folder}" FontFamily="Segoe UI Light" Margin="0,0,5,0" />
+                </DockPanel>
+            </Grid>
+
+            <TextBox Grid.Row="1" Visibility="{Binding Path=Folder, Converter={StaticResource Converter}}" Panel.ZIndex="1"
+                     VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" FontSize="32"
+                     HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" BorderThickness="0" FontFamily="Segoe UI Light" >
+                Load a folder to get a selection.
+            </TextBox>
+
+            <ListBox Name="Listbox" Grid.Row="1" ItemsSource="{Binding Folders, Mode=TwoWay}" ItemContainerStyle="{StaticResource ListBoxItemStyle}"
+                     BorderThickness="0" FontSize="28" FontFamily="Segoe UI Light" Foreground="LightGray" MouseDoubleClick="Listbox_OnMouseDoubleClick" >
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), 
+                            RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
+                            ItemWidth="{Binding (ListView.View).ItemWidth, 
+                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                            MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}"
+                            ItemHeight="{Binding (ListView.View).ItemHeight, 
+                            RelativeSource={RelativeSource AncestorType=ListView}}" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <WrapPanel d:DataContext="{d:DesignInstance Type=chooseRandomShow:ShowFolder }">
+                            <TextBlock Text="{Binding BaseFolder}" />
+                        </WrapPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            
+            <DockPanel Grid.Row="2" LastChildFill="True">
+                <Button DockPanel.Dock="Right" Content="Choose" Click="Choose_Click" FontSize="24" BorderThickness="0" FontFamily="Segoe UI Light" 
+                        IsHitTestVisible="{Binding Path=Folder, Converter={StaticResource BoolPathConverter}}" 
+                        Opacity="{Binding Path=Folder, Converter={StaticResource OpacityPathConverter}}" />
+            </DockPanel>
+            
+        </Grid>
     </Grid>
 </Window>
