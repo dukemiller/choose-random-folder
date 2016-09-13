@@ -10,22 +10,29 @@ using Ookii.Dialogs.Wpf;
 namespace choose_random_folder
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    ///     Interaction logic for MainWindow.xaml
     /// </summary>
     public sealed partial class MainWindow : INotifyPropertyChanged
     {
-        private Folder _selectedFolder;
-        
-        private bool _running;
 
-        private StartingFolder _startingFolder;
-
-        public StartingFolder StartingFolder
+        public MainWindow()
         {
-            get { return _startingFolder; }
+            Text = "Roll";
+            InitializeComponent();
+        }
+
+        private Folder SelectedFolder => Listbox.SelectedItem as Folder;
+
+        private bool Running { get; set; }
+
+        private LoadedFolder _loadedFolder;
+
+        public LoadedFolder LoadedFolder
+        {
+            get { return _loadedFolder; }
             set
             {
-                _startingFolder = value;
+                _loadedFolder = value;
                 OnPropertyChanged();
             }
         }
@@ -41,20 +48,16 @@ namespace choose_random_folder
                 OnPropertyChanged();
             }
         }
-        
+
         // 
 
-        public MainWindow()
-        {
-            Text = "Roll";
-            InitializeComponent();
-        }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private async Task SleepSelectLoop(int loopAmount, int sleepAmount)
         {
             for (var i = 0; i < loopAmount; i++)
             {
-                Listbox.SelectedItem = StartingFolder.RandomFolder;
+                Listbox.SelectedItem = LoadedFolder.RandomFolder;
                 await Task.Delay(sleepAmount);
             }
         }
@@ -63,12 +66,12 @@ namespace choose_random_folder
 
         private async void MainButton_Click(object sender, RoutedEventArgs e)
         {
-            if (StartingFolder.Count <= 0 || _running)
+            if ((LoadedFolder.Count <= 0) || Running)
                 return;
 
-            if (_selectedFolder == null)
+            if (Text.Equals("Roll"))
             {
-                _running = true;
+                Running = true;
                 Text = "Rolling ...";
 
                 await SleepSelectLoop(30, 100);
@@ -78,56 +81,43 @@ namespace choose_random_folder
                 await SleepSelectLoop(4, 650);
                 await SleepSelectLoop(3, 800);
 
-                _running = false;
-                _selectedFolder = Listbox.SelectedItem as Folder;
+                Running = false;
                 Text = "Open";
             }
 
 
             else
-            {
-                Process.Start(_selectedFolder.Path);
-            }
-
+                Process.Start(SelectedFolder.Path);
         }
 
         private void FolderBrowser_Click(object sender, RoutedEventArgs e)
         {
-            if (_running)
+            if (Running)
                 return;
 
-            _selectedFolder = null;
-            
             var dialog = new VistaFolderBrowserDialog();
 
             if (dialog.ShowDialog() == true)
             {
-                StartingFolder = new StartingFolder(dialog.SelectedPath);
+                LoadedFolder = new LoadedFolder(dialog.SelectedPath);
                 Text = "Roll";
+                Keyboard.ClearFocus();
             }
         }
-        
+
         private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.R)
-            {
-                if (!_running)
+                if (!Running)
                 {
                     Listbox.SelectedItem = null;
-                    _selectedFolder = null;
                     Text = "Roll";
                 }
-            }
         }
-
-        // 
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-        
     }
 }

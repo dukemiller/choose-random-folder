@@ -5,13 +5,13 @@ using System.Linq;
 
 namespace choose_random_folder.Classes
 {
-    public class StartingFolder : Folder
+    public class LoadedFolder : Folder
     {
         private static readonly Random Random = new Random();
 
-        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Count - 1));
+        private List<Folder> _contents;
 
-        public StartingFolder(string path) : base(path)
+        public LoadedFolder(string path) : base(path)
         {
             try
             {
@@ -27,7 +27,7 @@ namespace choose_random_folder.Classes
             }
         }
 
-        private List<Folder> _contents;
+        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Count - 1));
 
         public List<Folder> Contents
         {

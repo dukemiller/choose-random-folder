@@ -5,12 +5,12 @@ namespace choose_random_folder.Classes
 {
     public class Folder : INotifyPropertyChanged
     {
+        private string _path;
+
         public Folder(string path)
         {
             Path = path;
         }
-
-        private string _path;
 
         public string Path
         {

@@ -17,7 +17,7 @@ namespace choose_random_folder.Classes
             throw new NotImplementedException();
         }
     }
-    
+
     public class BooleanNotNull : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
