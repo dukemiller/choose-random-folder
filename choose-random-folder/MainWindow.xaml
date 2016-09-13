@@ -60,6 +60,14 @@
             <Setter Property="FocusVisualStyle" Value="{x:Null}" />
         </Style>
 
+        <Style x:Key="ReadOnlyTextbox" TargetType="{x:Type TextBox}">
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="IsReadOnly" Value="True"/>
+            <Setter Property="FontFamily" Value="{StaticResource Font}"/>
+        </Style>
+
     </Window.Resources>
     <Grid>
         <Grid>
@@ -79,6 +87,7 @@
                 <Label Grid.Column="0"
                        VerticalAlignment="Center"
                        Content="Choose a folder: "
+                       IsTabStop="False"
                        FontFamily="{StaticResource Font}"
                        FontSize="24" />
 
@@ -93,26 +102,21 @@
 
                     <TextBox Height="35"
                              Margin="0,0,5,0"
+                             Style="{StaticResource ReadOnlyTextbox}"
                              HorizontalContentAlignment="Left"
-                             VerticalContentAlignment="Center"
-                             DockPanel.Dock="Left"
-                             FontFamily="{StaticResource Font}"
                              FontSize="24"
-                             IsHitTestVisible="False"
                              Text="{Binding LoadedFolder.Path}" />
                 </DockPanel>
             </Grid>
 
             <TextBox Grid.Row="1"
+                     Style="{StaticResource ReadOnlyTextbox}"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
                      HorizontalContentAlignment="Stretch"
-                     VerticalContentAlignment="Stretch"
                      Panel.ZIndex="1"
                      BorderThickness="0"
-                     FontFamily="{StaticResource Font}"
                      FontSize="32"
-                     IsHitTestVisible="False"
                      Visibility="{Binding Path=LoadedFolder.Path,
                                           Converter={StaticResource Converter}}">
                 Load a folder to get a selection.
@@ -120,6 +124,7 @@
 
             <ListBox Name="Listbox"
                      Grid.Row="1"
+                     IsTabStop="False"
                      BorderThickness="0"
                      FontFamily="{StaticResource Font}"
                      FontSize="28"
@@ -153,6 +158,8 @@
                 <Button Click="MainButton_Click"
                         Content="{Binding Text}"
                         DockPanel.Dock="Right"
+                        IsTabStop="{Binding Path=LoadedFolder,
+                                            Converter={StaticResource BooleanNotNull}}"
                         IsHitTestVisible="{Binding Path=LoadedFolder,
                                                    Converter={StaticResource BooleanNotNull}}"
                         Opacity="{Binding Path=LoadedFolder,
