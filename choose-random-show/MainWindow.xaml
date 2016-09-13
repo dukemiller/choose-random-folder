@@ -6,6 +6,7 @@
         xmlns:chooseRandomShow="clr-namespace:choose_random_show"
         mc:Ignorable="d"
         ResizeMode="NoResize"
+        KeyDown="MainWindow_KeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Random folder chooser" Height="380" Width="640">
     <Window.Resources>
@@ -44,6 +45,7 @@
     </Window.Resources>
     <Grid>
         <Grid>
+            
             <Grid.RowDefinitions>
                 <RowDefinition Height="2*"/>
                 <RowDefinition Height="12*"/>
@@ -59,46 +61,49 @@
                 <Label FontFamily="Segoe UI Light" FontSize="24" Grid.Column="0" VerticalAlignment="Center" Content="Choose a folder: "/>
                 
                 <DockPanel Grid.Column="1" LastChildFill="True" >
-                    <Button Content="..." DockPanel.Dock="Right" Width="35" Height="35" Click="SelectFolder_Click" BorderThickness="0" />
+                    <Button Content="..." DockPanel.Dock="Right" Width="35" Height="35" Click="FolderBrowser_Click" 
+                            FocusVisualStyle="{x:Null}"
+                            BorderThickness="0" />
                     <TextBox DockPanel.Dock="Left" Height="35" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" IsHitTestVisible="False"
-                             FontSize="24" Text="{Binding Folder}" FontFamily="Segoe UI Light" Margin="0,0,5,0" />
+                             FontSize="24" Text="{Binding Folder.Path}" FontFamily="Segoe UI Light" Margin="0,0,5,0" />
                 </DockPanel>
             </Grid>
 
-            <TextBox Grid.Row="1" Visibility="{Binding Path=Folder, Converter={StaticResource Converter}}" Panel.ZIndex="1"
+            <TextBox Grid.Row="1" Visibility="{Binding Path=Folder.Path, Converter={StaticResource Converter}}" Panel.ZIndex="1"
                      VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" FontSize="32"
-                     HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" BorderThickness="0" FontFamily="Segoe UI Light" >
+                     HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" BorderThickness="0" 
+                     FontFamily="Segoe UI Light" >
                 Load a folder to get a selection.
             </TextBox>
 
-            <ListBox Name="Listbox" Grid.Row="1" ItemsSource="{Binding Folders, Mode=TwoWay}" ItemContainerStyle="{StaticResource ListBoxItemStyle}"
-                     BorderThickness="0" FontSize="28" FontFamily="Segoe UI Light" Foreground="LightGray" MouseDoubleClick="Listbox_OnMouseDoubleClick" >
+            <ListBox Name="Listbox" Grid.Row="1" ItemsSource="{Binding Folder.Contents, Mode=TwoWay}" ItemContainerStyle="{StaticResource ListBoxItemStyle}"
+                     BorderThickness="0" FontSize="28" FontFamily="Segoe UI Light" Foreground="LightGray">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
-                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), 
-                            RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
-                            ItemWidth="{Binding (ListView.View).ItemWidth, 
-                            RelativeSource={RelativeSource AncestorType=ListView}}"
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
+                            ItemWidth="{Binding (ListView.View).ItemWidth, RelativeSource={RelativeSource AncestorType=ListView}}"
                             MinWidth="{Binding ItemWidth, RelativeSource={RelativeSource Self}}"
-                            ItemHeight="{Binding (ListView.View).ItemHeight, 
-                            RelativeSource={RelativeSource AncestorType=ListView}}" />
+                            ItemHeight="{Binding (ListView.View).ItemHeight, RelativeSource={RelativeSource AncestorType=ListView}}" />
                     </ItemsPanelTemplate>
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <WrapPanel d:DataContext="{d:DesignInstance Type=chooseRandomShow:ShowFolder }">
-                            <TextBlock Text="{Binding BaseFolder}" />
+                        <WrapPanel d:DataContext="{d:DesignInstance Type=chooseRandomShow:Folder }">
+                            <TextBlock Text="{Binding Name}" />
                         </WrapPanel>
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>
-            
+
             <DockPanel Grid.Row="2" LastChildFill="True">
-                <Button DockPanel.Dock="Right" Content="Choose" Click="Choose_Click" FontSize="24" BorderThickness="0" FontFamily="Segoe UI Light" 
-                        IsHitTestVisible="{Binding Path=Folder, Converter={StaticResource BoolPathConverter}}" 
-                        Opacity="{Binding Path=Folder, Converter={StaticResource OpacityPathConverter}}" />
+                <Button DockPanel.Dock="Right" FontSize="24" BorderThickness="0" FontFamily="Segoe UI Light" 
+                        Content="{Binding Text}"
+                        Click="MainButton_Click"
+                        FocusVisualStyle="{x:Null}" 
+                        IsHitTestVisible="{Binding Path=Folder.Path, Converter={StaticResource BoolPathConverter}}" 
+                        Opacity="{Binding Path=Folder.Path, Converter={StaticResource OpacityPathConverter}}" />
             </DockPanel>
-            
+
         </Grid>
     </Grid>
 </Window>

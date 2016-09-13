@@ -7,11 +7,8 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using Ookii.Dialogs.Wpf;
-using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace choose_random_show
 {
@@ -20,15 +17,14 @@ namespace choose_random_show
     /// </summary>
     public sealed partial class MainWindow : INotifyPropertyChanged
     {
-        private static readonly Random Random = new Random();
-
-        private int RandomChoice => Random.Next(0, Folders.Count - 1);
-
+        
+        private Folder _selected;
+        
         private bool _running;
 
-        private string _folder;
+        private BaseFolder _folder;
 
-        public string Folder
+        public BaseFolder Folder
         {
             get { return _folder; }
             set
@@ -38,78 +34,91 @@ namespace choose_random_show
             }
         }
 
-        private List<ShowFolder> _folders;
+        private string _text;
 
-        public List<ShowFolder> Folders
+        public string Text
         {
-            get { return _folders; }
+            get { return _text; }
             set
             {
-                _folders = value;
+                _text = value;
                 OnPropertyChanged();
             }
         }
-
+        
         // 
 
         public MainWindow()
         {
-            _folder = "";
-            _folders = new List<ShowFolder>();
+            Text = "Roll";
             InitializeComponent();
         }
 
-        private async Task SleepSelectLoop(int amount, int sleepTime)
+        private async Task SleepSelectLoop(int loopAmount, int sleepAmount)
         {
-            for (var i = 0; i < amount; i++)
+            for (var i = 0; i < loopAmount; i++)
             {
-                Listbox.SelectedItem = Listbox.Items.GetItemAt(RandomChoice);
-                await Task.Delay(sleepTime);
+                Listbox.SelectedItem = Folder.RandomFolder;
+                await Task.Delay(sleepAmount);
             }
         }
 
         // 
 
-        private async void Choose_Click(object sender, RoutedEventArgs e)
+        private async void MainButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Folders.Count <= 0 || _running)
+            if (Folder.Count <= 0 || _running)
                 return;
 
+            if (_selected != null)
+            {
+                Process.Start(_selected.Path);
+                return;
+            }
+
             _running = true;
+
+            Text = "Rolling ...";
 
             await SleepSelectLoop(30, 100);
             await SleepSelectLoop(10, 150);
             await SleepSelectLoop(5, 250);
             await SleepSelectLoop(5, 500);
-            await SleepSelectLoop(5, 650);
+            await SleepSelectLoop(4, 650);
             await SleepSelectLoop(3, 800);
 
             _running = false;
+            _selected = Listbox.SelectedItem as Folder;
+            Text = "Open";
 
         }
 
-        private void SelectFolder_Click(object sender, RoutedEventArgs e)
+        private void FolderBrowser_Click(object sender, RoutedEventArgs e)
         {
             if (_running)
                 return;
 
+            _selected = null;
+            
             var dialog = new VistaFolderBrowserDialog();
-
             if (dialog.ShowDialog() == true)
             {
-                Folder = dialog.SelectedPath;
-                Folders = Directory.GetDirectories(dialog.SelectedPath).Select(s => new ShowFolder(s)).OrderBy(s => s.FullPath.Length).ToList();
+                Folder = new BaseFolder(dialog.SelectedPath);
+                Text = "Roll";
             }
         }
-
-        private void Listbox_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
         {
-            if (_running)
-                return;
-
-            var selected = (sender as ListBox)?.SelectedItem as ShowFolder;
-            if (selected != null)
-                Process.Start(selected.FullPath);
+            if (e.Key == Key.R)
+            {
+                if (!_running)
+                {
+                    Listbox.SelectedItem = null;
+                    _selected = null;
+                    Text = "Roll";
+                }
+            }
         }
 
         // 
@@ -120,20 +129,100 @@ namespace choose_random_show
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
-
+        
     }
 
-    public class ShowFolder
+    public sealed class BaseFolder : INotifyPropertyChanged
     {
 
-        public ShowFolder(string baseDirectory)
+        private static readonly Random Random = new Random();
+
+        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Contents.Count - 1));
+
+        public BaseFolder(string path)
         {
-            FullPath = baseDirectory;
+            _path = path;
+
+            try
+            {
+                _contents = Directory.GetDirectories(path)
+                    .Select(s => new Folder(s))
+                    .OrderBy(s => s.Path.Length)
+                    .ToList();
+            }
+
+            catch
+            {
+                _contents = new List<Folder>();
+            }
         }
 
-        public string FullPath { get; }
+        public int Count => Contents.Count;
 
-        public string BaseFolder => Path.GetFileNameWithoutExtension(FullPath);
+        private List<Folder> _contents;
 
+        public List<Folder> Contents
+        {
+            get { return _contents; }
+            set
+            {
+                _contents = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _path;
+
+        public string Path
+        {
+            get { return _path; }
+            set
+            {
+                _path = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+    }
+
+    public sealed class Folder : INotifyPropertyChanged
+    {
+        public Folder(string path)
+        {
+            Path = path;
+        }
+
+        private string _path;
+
+        public string Path
+        {
+            get { return _path; }
+            set
+            {
+                _path = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Name => System.IO.Path.GetFileNameWithoutExtension(Path);
+
+        public int Size => Contents.Count();
+
+        public IEnumerable<Folder> Contents => Directory.GetDirectories(Path)
+            .Select(s => new Folder(s))
+            .OrderBy(s => s.Path.Length);
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 }
