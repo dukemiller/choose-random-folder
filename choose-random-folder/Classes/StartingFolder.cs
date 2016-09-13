@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace choose_random_show.Classes
+namespace choose_random_folder.Classes
 {
     public class StartingFolder : Folder
     {

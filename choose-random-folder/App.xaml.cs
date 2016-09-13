@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace choose_random_show
+namespace choose_random_folder
 {
     /// <summary>
     /// Interaction logic for App.xaml

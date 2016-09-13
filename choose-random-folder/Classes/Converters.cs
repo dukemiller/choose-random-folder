@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace choose_random_show.Classes
+namespace choose_random_folder.Classes
 {
     public class StringLengthConverter : IValueConverter
     {

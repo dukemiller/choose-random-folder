@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
-namespace choose_random_show.Classes
+namespace choose_random_folder.Classes
 {
     public class Folder : INotifyPropertyChanged
     {

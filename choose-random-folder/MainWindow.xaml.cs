@@ -4,10 +4,10 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
-using choose_random_show.Classes;
+using choose_random_folder.Classes;
 using Ookii.Dialogs.Wpf;
 
-namespace choose_random_show
+namespace choose_random_folder
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
