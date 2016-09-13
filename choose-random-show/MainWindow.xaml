@@ -3,16 +3,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:chooseRandomShow="clr-namespace:choose_random_show"
+        xmlns:classes="clr-namespace:choose_random_show.Classes"
         mc:Ignorable="d"
         ResizeMode="NoResize"
         KeyDown="MainWindow_KeyDown"
         DataContext="{Binding RelativeSource={RelativeSource Self}}"
         Title="Random folder chooser" Height="380" Width="640">
     <Window.Resources>
-        <chooseRandomShow:StringLengthConverter x:Key="Converter" />
-        <chooseRandomShow:BoolPathValid x:Key="BoolPathConverter" />
-        <chooseRandomShow:OpacityPathValid x:Key="OpacityPathConverter" />
+        <classes:StringLengthConverter x:Key="Converter" />
+        <classes:BooleanNotNull x:Key="BooleanNotNull" />
+        <classes:OpacityNotNull x:Key="OpacityNotNull" />
+        
         <Style x:Key="ListBoxItemStyle" TargetType="{x:Type ListBoxItem}">
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="Background" Value="Transparent"/>
@@ -42,6 +43,16 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <FontFamily x:Key="Font">Segoe UI Light</FontFamily>
+
+        <Style x:Key="ButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="FontSize" Value="24"/>
+            <Setter Property="FontFamily" Value="{StaticResource Font}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        </Style>
+        
     </Window.Resources>
     <Grid>
         <Grid>
@@ -54,30 +65,29 @@
             
             <Grid Grid.Row="0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="4*"/>
-                    <ColumnDefinition Width="10*"/>
+                    <ColumnDefinition Width="2*"/>
+                    <ColumnDefinition Width="5*"/>
                 </Grid.ColumnDefinitions>
 
-                <Label FontFamily="Segoe UI Light" FontSize="24" Grid.Column="0" VerticalAlignment="Center" Content="Choose a folder: "/>
+                <Label FontFamily="{StaticResource Font}" FontSize="24" Grid.Column="0" VerticalAlignment="Center" Content="Choose a folder: "/>
                 
-                <DockPanel Grid.Column="1" LastChildFill="True" >
-                    <Button Content="..." DockPanel.Dock="Right" Width="35" Height="35" Click="FolderBrowser_Click" 
-                            FocusVisualStyle="{x:Null}"
-                            BorderThickness="0" />
+                <DockPanel Grid.Column="1" >
+                    <Button Content="..." Style="{StaticResource ButtonStyle}" DockPanel.Dock="Right" Width="35" Height="35" Click="FolderBrowser_Click" />
                     <TextBox DockPanel.Dock="Left" Height="35" VerticalContentAlignment="Center" HorizontalContentAlignment="Left" IsHitTestVisible="False"
-                             FontSize="24" Text="{Binding Folder.Path}" FontFamily="Segoe UI Light" Margin="0,0,5,0" />
+                             FontSize="24" Text="{Binding StartingFolder.Path}" FontFamily="{StaticResource Font}" Margin="0,0,5,0" />
                 </DockPanel>
             </Grid>
 
-            <TextBox Grid.Row="1" Visibility="{Binding Path=Folder.Path, Converter={StaticResource Converter}}" Panel.ZIndex="1"
+            <TextBox Grid.Row="1" Visibility="{Binding Path=StartingFolder.Path, Converter={StaticResource Converter}}" Panel.ZIndex="1"
                      VerticalContentAlignment="Stretch" HorizontalContentAlignment="Stretch" FontSize="32"
                      HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False" BorderThickness="0" 
-                     FontFamily="Segoe UI Light" >
+                     FontFamily="{StaticResource Font}">
                 Load a folder to get a selection.
             </TextBox>
 
-            <ListBox Name="Listbox" Grid.Row="1" ItemsSource="{Binding Folder.Contents, Mode=TwoWay}" ItemContainerStyle="{StaticResource ListBoxItemStyle}"
-                     BorderThickness="0" FontSize="28" FontFamily="Segoe UI Light" Foreground="LightGray">
+            <ListBox Name="Listbox" Grid.Row="1" ItemsSource="{Binding StartingFolder.Contents, Mode=TwoWay}" 
+                     ItemContainerStyle="{StaticResource ListBoxItemStyle}"
+                     BorderThickness="0" FontSize="28" FontFamily="{StaticResource Font}" Foreground="LightGray">
                 <ListBox.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"
@@ -88,7 +98,7 @@
                 </ListBox.ItemsPanel>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <WrapPanel d:DataContext="{d:DesignInstance Type=chooseRandomShow:Folder }">
+                        <WrapPanel d:DataContext="{d:DesignInstance Type=classes:Folder }">
                             <TextBlock Text="{Binding Name}" />
                         </WrapPanel>
                     </DataTemplate>
@@ -96,12 +106,11 @@
             </ListBox>
 
             <DockPanel Grid.Row="2" LastChildFill="True">
-                <Button DockPanel.Dock="Right" FontSize="24" BorderThickness="0" FontFamily="Segoe UI Light" 
+                <Button DockPanel.Dock="Right" Style="{StaticResource ButtonStyle}"
                         Content="{Binding Text}"
                         Click="MainButton_Click"
-                        FocusVisualStyle="{x:Null}" 
-                        IsHitTestVisible="{Binding Path=Folder.Path, Converter={StaticResource BoolPathConverter}}" 
-                        Opacity="{Binding Path=Folder.Path, Converter={StaticResource OpacityPathConverter}}" />
+                        IsHitTestVisible="{Binding Path=StartingFolder, Converter={StaticResource BooleanNotNull}}" 
+                        Opacity="{Binding Path=StartingFolder, Converter={StaticResource OpacityNotNull}}" />
             </DockPanel>
 
         </Grid>

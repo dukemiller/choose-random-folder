@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using choose_random_show.Classes;
 using Ookii.Dialogs.Wpf;
 
 namespace choose_random_show
@@ -17,19 +14,18 @@ namespace choose_random_show
     /// </summary>
     public sealed partial class MainWindow : INotifyPropertyChanged
     {
-        
-        private Folder _selected;
+        private Folder _selectedFolder;
         
         private bool _running;
 
-        private BaseFolder _folder;
+        private StartingFolder _startingFolder;
 
-        public BaseFolder Folder
+        public StartingFolder StartingFolder
         {
-            get { return _folder; }
+            get { return _startingFolder; }
             set
             {
-                _folder = value;
+                _startingFolder = value;
                 OnPropertyChanged();
             }
         }
@@ -58,7 +54,7 @@ namespace choose_random_show
         {
             for (var i = 0; i < loopAmount; i++)
             {
-                Listbox.SelectedItem = Folder.RandomFolder;
+                Listbox.SelectedItem = StartingFolder.RandomFolder;
                 await Task.Delay(sleepAmount);
             }
         }
@@ -67,29 +63,31 @@ namespace choose_random_show
 
         private async void MainButton_Click(object sender, RoutedEventArgs e)
         {
-            if (Folder.Count <= 0 || _running)
+            if (StartingFolder.Count <= 0 || _running)
                 return;
 
-            if (_selected != null)
+            if (_selectedFolder == null)
             {
-                Process.Start(_selected.Path);
-                return;
+                _running = true;
+                Text = "Rolling ...";
+
+                await SleepSelectLoop(30, 100);
+                await SleepSelectLoop(10, 150);
+                await SleepSelectLoop(5, 250);
+                await SleepSelectLoop(5, 500);
+                await SleepSelectLoop(4, 650);
+                await SleepSelectLoop(3, 800);
+
+                _running = false;
+                _selectedFolder = Listbox.SelectedItem as Folder;
+                Text = "Open";
             }
 
-            _running = true;
 
-            Text = "Rolling ...";
-
-            await SleepSelectLoop(30, 100);
-            await SleepSelectLoop(10, 150);
-            await SleepSelectLoop(5, 250);
-            await SleepSelectLoop(5, 500);
-            await SleepSelectLoop(4, 650);
-            await SleepSelectLoop(3, 800);
-
-            _running = false;
-            _selected = Listbox.SelectedItem as Folder;
-            Text = "Open";
+            else
+            {
+                Process.Start(_selectedFolder.Path);
+            }
 
         }
 
@@ -98,12 +96,13 @@ namespace choose_random_show
             if (_running)
                 return;
 
-            _selected = null;
+            _selectedFolder = null;
             
             var dialog = new VistaFolderBrowserDialog();
+
             if (dialog.ShowDialog() == true)
             {
-                Folder = new BaseFolder(dialog.SelectedPath);
+                StartingFolder = new StartingFolder(dialog.SelectedPath);
                 Text = "Roll";
             }
         }
@@ -115,7 +114,7 @@ namespace choose_random_show
                 if (!_running)
                 {
                     Listbox.SelectedItem = null;
-                    _selected = null;
+                    _selectedFolder = null;
                     Text = "Roll";
                 }
             }
@@ -130,99 +129,5 @@ namespace choose_random_show
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         
-    }
-
-    public sealed class BaseFolder : INotifyPropertyChanged
-    {
-
-        private static readonly Random Random = new Random();
-
-        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Contents.Count - 1));
-
-        public BaseFolder(string path)
-        {
-            _path = path;
-
-            try
-            {
-                _contents = Directory.GetDirectories(path)
-                    .Select(s => new Folder(s))
-                    .OrderBy(s => s.Path.Length)
-                    .ToList();
-            }
-
-            catch
-            {
-                _contents = new List<Folder>();
-            }
-        }
-
-        public int Count => Contents.Count;
-
-        private List<Folder> _contents;
-
-        public List<Folder> Contents
-        {
-            get { return _contents; }
-            set
-            {
-                _contents = value;
-                OnPropertyChanged();
-            }
-        }
-
-        private string _path;
-
-        public string Path
-        {
-            get { return _path; }
-            set
-            {
-                _path = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
-
-    public sealed class Folder : INotifyPropertyChanged
-    {
-        public Folder(string path)
-        {
-            Path = path;
-        }
-
-        private string _path;
-
-        public string Path
-        {
-            get { return _path; }
-            set
-            {
-                _path = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public string Name => System.IO.Path.GetFileNameWithoutExtension(Path);
-
-        public int Size => Contents.Count();
-
-        public IEnumerable<Folder> Contents => Directory.GetDirectories(Path)
-            .Select(s => new Folder(s))
-            .OrderBy(s => s.Path.Length);
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
     }
 }

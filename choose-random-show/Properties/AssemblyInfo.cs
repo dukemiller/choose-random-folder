@@ -8,11 +8,11 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("choose-random-show")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("It will choose a random folder in a directory.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("choose-random-show")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © 2016 Duke Miller")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

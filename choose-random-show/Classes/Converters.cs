@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-namespace choose_random_show
+namespace choose_random_show.Classes
 {
     public class StringLengthConverter : IValueConverter
     {
@@ -17,12 +17,12 @@ namespace choose_random_show
             throw new NotImplementedException();
         }
     }
-
-    public class BoolPathValid : IValueConverter
+    
+    public class BooleanNotNull : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return !((string) value).Equals("");
+            return value != null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -31,11 +31,11 @@ namespace choose_random_show
         }
     }
 
-    public class OpacityPathValid : IValueConverter
+    public class OpacityNotNull : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            return !((string) value).Equals("") ? 1.0 : 0.6;
+            return value != null ? 1.0 : 0.6;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -43,8 +43,4 @@ namespace choose_random_show
             throw new NotImplementedException();
         }
     }
-
-
-
-
 }

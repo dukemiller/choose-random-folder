@@ -81,7 +81,9 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Converters.cs" />
+    <Compile Include="Classes\Folder.cs" />
+    <Compile Include="Classes\StartingFolder.cs" />
+    <Compile Include="Classes\Converters.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
