@@ -27,7 +27,7 @@ namespace choose_random_folder.Classes
             }
         }
 
-        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Count - 1));
+        public Folder RandomFolder => Contents.ElementAt(Random.Next(0, Count));
 
         public List<Folder> Contents
         {
